@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Extractor WhatsApp – Texto a XLSX</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Extractor WhatsApp</h1>
+      <p class="sub">Limpia, une y exporta contactos ➜ XLSX</p>
+    </header>
+
+    <main class="grid">
+      <!-- Panel de ingreso -->
+      <section class="card span-7">
+        <h2>Entrada</h2>
+        <p>Pega el texto o contenido del records, no se suben archivos.</p>
+        <textarea id="inputText" placeholder="Pega aquí el texto..."></textarea>
+
+        <!-- Objetivo -->
+        <div class="row">
+          <label class="field">
+            <span>Objetivo (Account Identifier)</span>
+            <input type="text" id="accountId" placeholder="Ej: +57 3001234567 o 3001234567"/>
+          </label>
+        </div>
+
+        <!-- INPUT FILE OCULTO (para no romper el JS existente) -->
+        <input type="file" id="fileInput" accept=".txt,.csv,.html" multiple hidden />
+
+        <!-- Acciones -->
+        <div class="row actions one-line">
+          <button id="processBtn" class="btn">Procesar texto</button>
+          <button id="addToBatchBtn" class="btn">Agregar al lote</button>
+          <button id="clearBtn" class="btn ghost">Limpiar</button>
+        </div>
+
+        <!-- Aviso legal / uso -->
+        <p class="disclaimer">
+          Aviso: Esta herramienta está destinada exclusivamente a análisis técnico; cualquier interpretación o uso posterior es responsabilidad del usuario.
+        </p>
+      </section>
+
+      <!-- Panel de vista previa -->
+      <section class="card span-5">
+        <div class="preview-head">
+          <h2>Vista previa</h2>
+          <label class="switch">
+            <input type="checkbox" id="showAll">
+            <span class="slider"></span>
+            <span class="lbl">Mostrar todo</span>
+          </label>
+        </div>
+
+        <div class="stats">
+          <div class="chip">Total: <span id="stat-total">0</span></div>
+          <div class="chip">Únicos: <span id="stat-unique">0</span></div>
+        </div>
+
+        <div id="contactsList" class="preview"></div>
+
+        <div class="row actions one-line">
+          <button id="downloadBtn" class="btn" disabled>Descargar XLSX (Actual)</button>
+        </div>
+      </section>
+
+      <!-- Panel de lote / unión -->
+      <section class="card span-12">
+        <div class="batch-head">
+          <h2>Reportes cargados (Lote)</h2>
+          <div class="hint">Carga varios reportes (cada uno con su Objetivo) y, al exportar Unificado, se genera una sola hoja con dos columnas:<code> Contactos y Objetivo</code>.</div>
+        </div>
+
+        <div id="batchList" class="batch"></div>
+
+        <div class="row actions one-line">
+          <button id="exportMergedBtn" class="btn" disabled>Descargar XLSX (Unificado)</button>
+          <button id="clearBatchBtn" class="btn ghost">Vaciar lote</button>
+        </div>
+      </section>
+    </main>
+
+  <footer class="footer">
+  <div class="sig">DESARROLLADO POR <strong>DEVINSON MENA</strong></div>
+
+  <div class="links">
+    <span>Versión 1.0.0</span>
+    <span class="dot">•</span>
+    <a href="mailto:contacto@tu-dominio.com" rel="noopener">Contacto</a>
+    <span class="dot">•</span>
+    <a href="https://tu-portafolio-o-github.com" target="_blank" rel="noopener">Repositorio</a>
+    <span class="dot">•</span>
+    <a href="#" aria-disabled="true" tabindex="-1" class="muted">Guía rápida</a>
+  </div>
+
+  <div class="legal">
+  Uso exclusivo para <strong>análisis</strong>. Los datos y resultados generados son
+  <strong>responsabilidad del usuario</strong>.
+</div>
+
+
+  <div class="copy">© 2025 Devinson Mena</div>
+</footer>
+
+
+  <!-- MODAL de instrucciones (se muestra automáticamente en cada recarga) -->
+  <div id="modalOverlay" class="modal-overlay" aria-hidden="true"></div>
+  <div id="howtoModal" class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Cómo usar el Extractor</h3>
+        <button class="modal-close" type="button" aria-label="Cerrar" data-close-howto>×</button>
+      </div>
+      <div class="modal-body" id="modal-desc">
+        <ol>
+          <li>Pega en <strong>Entrada</strong> el texto del <em>records.html</em> o una lista de números (puede incluir líneas tipo “WhatsApp Business Record Page …”).</li>
+          <li>Escribe el <strong>Objetivo</strong> (Account Identifier). Lo normalizamos y removemos prefijos <code>+57</code>/<code>57</code>/<code>0057</code>.</li>
+          <li>Haz clic en <strong>Procesar texto</strong> para obtener contactos:
+            <ul>
+              <li>Solo dígitos (el extractor solo toma secuencias numéricas con al menos 6 dígitos).</li>
+              <li>Sin prefijos 57 (si aplica).</li>
+              <li>Sin duplicados.</li>
+            </ul>
+          </li>
+          <li>Con <strong>Agregar al lote</strong> unes varios reportes (cada uno con su objetivo). <strong>Descargar XLSX (Unificado)</strong> crea una hoja con columnas <strong>Contactos</strong> y <strong>Objetivo</strong>, todo como texto.</li>
+          <li>Para un solo reporte, usa <strong>Descargar XLSX (Actual)</strong>.</li>
+        </ol>
+        <p class="note">Tip: Activa “Mostrar todo” en la vista previa para scrollear la lista completa. No se suben archivos; todo es por <strong>pegar texto</strong>.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" type="button" data-close-howto>Entiendo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Librería XLSX y lógica -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
